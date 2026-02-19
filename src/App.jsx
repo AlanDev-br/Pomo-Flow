@@ -1,7 +1,13 @@
+import { useAuth } from "./contexts/AuthContext";
+import { Login } from "./pages/Login";
 import { Home } from "./pages/Home";
 
-function App() {
-  return <Home />;
-}
+export default function App() {
+  const { user } = useAuth();
 
-export default App;
+  // Ainda carregando o estado do Firebase
+  if (user === undefined) return null;
+
+  // Não logado → Login, Logado → Home
+  return user ? <Home /> : <Login />;
+}
