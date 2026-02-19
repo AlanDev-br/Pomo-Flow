@@ -15,7 +15,6 @@ export function Login() {
   const handleGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
-      // AuthContext detecta automaticamente e redireciona
     } catch (e) {
       setError("Erro ao entrar com Google.");
     }
@@ -37,9 +36,20 @@ export function Login() {
   return (
     <div className="min-h-screen bg-[#0e0e0e] flex items-center justify-center">
       <div className="bg-[#1a1a1a] rounded-2xl p-8 w-full max-w-sm flex flex-col gap-4 shadow-2xl">
-        <h1 className="text-white text-2xl font-bold text-center tracking-wide">
+        {/* ← Nome e slogan do app */}
+        <div className="text-center mb-2">
+          <h1 className="text-red-500 text-3xl font-bold tracking-widest">
+            PomoFlow
+          </h1>
+          <p className="text-gray-600 text-xs tracking-widest mt-1">
+            Focus. Flow. Achieve.
+          </p>
+        </div>
+
+        {/* ← Subtítulo dinâmico */}
+        <p className="text-gray-400 text-sm text-center">
           {isCreating ? "Criar conta" : "Entrar"}
-        </h1>
+        </p>
 
         {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 

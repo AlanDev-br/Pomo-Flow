@@ -5,22 +5,28 @@ export function Header({ activePage, onPageChange }) {
   const pages = ["Home", "Statistics", "Settings"];
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex gap-6 text-white">
+    // ← flex-col no mobile, flex-row no desktop
+    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      {/* PomoFlow */}
+      <span className="text-red-500 font-bold text-xl tracking-widest uppercase">
+        PomoFlow
+      </span>
+
+      {/* Navegação */}
+      <div className="flex gap-3 text-white flex-wrap">
         {pages.map((page) => (
           <button
             key={page}
-            onClick={() => onPageChange(page)} // avisa o Home qual página foi clicada
+            onClick={() => onPageChange(page)}
             className={`px-4 py-2 rounded-xl transition ${
-              activePage === page
-                ? "bg-red-500" // Ativo: Fundo vermelho
-                : "hover:text-red-400" // Inativo: só o hover
+              activePage === page ? "bg-red-500" : "hover:text-red-400"
             }`}
           >
             {page}
           </button>
         ))}
       </div>
+
       {/* Avatar + Nome + Logout */}
       <div className="flex items-center gap-3">
         {user?.photoURL && (

@@ -3,7 +3,7 @@ import { Header } from "../components/Header";
 import gradient from "../assets/Background.png";
 import { Timer } from "../components/Timer";
 import { Settings } from "../components/Settings";
-import { Statistics } from "../components/Statistics"; // ← import Statistics
+import { Statistics } from "../components/Statistics";
 import { loadTodayTime, saveTodayTime } from "../services/studyTime";
 import { useAuth } from "../contexts/AuthContext";
 import { Player } from "../components/Player";
@@ -26,9 +26,7 @@ export function Home() {
   useEffect(() => {
     if (user) {
       loadTodayTime(user.uid)
-        .then((seconds) => {
-          setStudySeconds(seconds);
-        })
+        .then(setStudySeconds)
         .catch((err) => console.error("Erro ao carregar:", err));
     }
   }, [user]);
@@ -37,10 +35,8 @@ export function Home() {
     setStudySeconds((prev) => prev + 1);
   };
 
-  // ← Salva no Firestore 3 segundos após última atualização
   useEffect(() => {
     if (!user || studySeconds === 0) return;
-
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       saveTodayTime(user.uid, studySeconds).catch((err) =>
@@ -83,8 +79,10 @@ export function Home() {
       />
       <div className="absolute inset-0 bg-black/50" />
 
-      <div className="relative z-10 flex items-center justify-center p-6">
-        <div className="w-full max-w-7xl bg-[#1a1a1a] rounded-3xl shadow-2xl p-8">
+      {/* ← p-3 no mobile, p-6 no desktop */}
+      <div className="relative z-10 flex items-center justify-center p-3 md:p-6">
+        {/* ← p-4 no mobile, p-8 no desktop */}
+        <div className="w-full max-w-7xl bg-[#1a1a1a] rounded-3xl shadow-2xl p-4 md:p-8">
           <Header
             activePage={activePage}
             onPageChange={(page) => {
@@ -93,10 +91,10 @@ export function Home() {
             }}
           />
 
-          <div className="grid grid-cols-2 gap-8 mt-8">
-            {/* ← Left Panel — Timer e Statistics se alternam */}
+          {/* ← flex-col no mobile, grid 2 colunas no desktop */}
+          <div className="flex flex-col gap-8 mt-8 md:grid md:grid-cols-2">
+            {/* Left Panel */}
             <div className="relative">
-              {/* Timer — invisible mantém espaço e continua rodando */}
               <div className={activePage === "Statistics" ? "invisible" : ""}>
                 <Timer
                   activeTab={activeTab}
@@ -105,8 +103,6 @@ export function Home() {
                   onPomodoroTick={handlePomodoroTick}
                 />
               </div>
-
-              {/* Statistics — sobrepõe o Timer quando ativo */}
               {activePage === "Statistics" && (
                 <div className="absolute inset-0">
                   <Statistics />
