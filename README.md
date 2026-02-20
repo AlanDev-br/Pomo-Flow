@@ -1,6 +1,6 @@
 # 🍅 Pomo Flow
 
-> Uma breve descrição do projeto — ex: "Aplicativo de produtividade baseado na técnica Pomodoro, construído com React."
+> Aplicativo de produtividade baseado na técnica Pomodoro, construído com React."
 
 ## ✨ Features
 
