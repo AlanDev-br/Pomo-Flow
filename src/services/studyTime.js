@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
 
 const today = () => new Date().toISOString().split("T")[0];
 
-// ← Lê o tempo do dia atual
+// Lê o tempo do dia atual
 export async function loadTodayTime(userId) {
   const ref = doc(db, "studyTime", userId, "history", today());
   const snap = await getDoc(ref);
@@ -11,13 +11,13 @@ export async function loadTodayTime(userId) {
   return snap.data().seconds ?? 0;
 }
 
-// ← Salva em subcoleção history/{data} em vez de sobrescrever
+// Salva em subcoleção history/{data} em vez de sobrescrever
 export async function saveTodayTime(userId, seconds) {
   const ref = doc(db, "studyTime", userId, "history", today());
   await setDoc(ref, { date: today(), seconds });
 }
 
-// ← Busca os 7 dias da semana atual (Seg a Dom)
+// Busca os 7 dias da semana atual (Seg a Dom)
 export async function loadWeekData(userId) {
   const ref = collection(db, "studyTime", userId, "history");
   const snap = await getDocs(ref);
@@ -35,7 +35,32 @@ export async function loadWeekData(userId) {
   }));
 }
 
-// ← Gera os 7 dias da semana atual (Seg a Dom)
+export async function loadTotalTime(userId) {
+  const ref = collection(db, "studyTime", userId, "history");
+  const snap = await getDocs(ref);
+
+  const totalSeconds = snap.docs.reduce((acc, doc) => {
+    return acc + (doc.data().seconds ?? 0);
+  }, 0);
+
+  return totalSeconds;
+}
+
+// Salva configurações padrão do usuário
+export async function saveDefaultSettings(userId, times) {
+  const ref = doc(db, "userSettings", userId);
+  await setDoc(ref, { defaultTimes: times });
+}
+
+// Carrega configurações padrão do usuário
+export async function loadDefaultSettings(userId) {
+  const ref = doc(db, "userSettings", userId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return null;
+  return snap.data().defaultTimes ?? null;
+}
+
+// Gera os 7 dias da semana atual (Seg a Dom)
 function getWeekDays() {
   const labels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
   const today = new Date();

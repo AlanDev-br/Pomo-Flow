@@ -1,34 +1,50 @@
 import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { saveDefaultSettings } from "../services/studyTime";
 
 export function Settings({ times, onSave, onClose }) {
+  const { user } = useAuth();
   const [draft, setDraft] = useState(times);
+  const [saved, setSaved] = useState(false);
 
+  // Atualiza o rascunho quando o usuário digita
   const handleChange = (key, value) => {
     setDraft((prev) => ({ ...prev, [key]: Number(value) }));
   };
 
+  // Valida os valores entre 1 e 99 minutos
+  const validate = () => ({
+    pomodoro: Math.max(1, Math.min(99, draft.pomodoro)),
+    shortBreak: Math.max(1, Math.min(99, draft.shortBreak)),
+    longBreak: Math.max(1, Math.min(99, draft.longBreak)),
+  });
+
+  // Salva apenas para a sessão atual
   const handleSave = () => {
-    const validated = {
-      pomodoro: Math.max(1, Math.min(99, draft.pomodoro)),
-      shortBreak: Math.max(1, Math.min(99, draft.shortBreak)),
-      longBreak: Math.max(1, Math.min(99, draft.longBreak)),
-    };
+    onSave(validate());
+  };
+
+  // Salva no Firestore como configuração padrão do usuário
+  const handleSaveDefault = async () => {
+    const validated = validate();
+    await saveDefaultSettings(user.uid, validated);
     onSave(validated);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
 
   return (
-    // Fundo escuro clicável para fechar
     <div
       className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
       onClick={onClose}
     >
-      {/* Caixa do modal — stopPropagation para não fechar ao clicar dentro */}
       <div
         className="bg-[#1a1a1a] rounded-2xl p-8 w-full max-w-sm flex flex-col gap-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-white text-lg font-bold tracking-wide">Settings</h2>
 
+        {/* Campos de tempo para cada aba */}
         {[
           { key: "pomodoro", label: "Pomodoro" },
           { key: "shortBreak", label: "Short Break" },
@@ -50,7 +66,8 @@ export function Settings({ times, onSave, onClose }) {
           </div>
         ))}
 
-        <div className="flex gap-3 mt-2">
+        {/* Botões de ação principais */}
+        <div className="flex gap-3">
           <button
             onClick={onClose}
             className="flex-1 py-2 rounded-xl text-gray-400 bg-[#2a2a2a] hover:bg-[#333] transition text-sm"
@@ -64,6 +81,14 @@ export function Settings({ times, onSave, onClose }) {
             Save
           </button>
         </div>
+
+        {/* Botão para salvar como configuração padrão no Firestore */}
+        <button
+          onClick={handleSaveDefault}
+          className="w-full py-2 rounded-xl text-sm transition border border-[#333] text-gray-400 hover:border-red-500 hover:text-red-400"
+        >
+          {saved ? "✓ Saved as default!" : "Save as Default"}
+        </button>
       </div>
     </div>
   );

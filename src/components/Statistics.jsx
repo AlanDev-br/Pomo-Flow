@@ -8,18 +8,29 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { loadWeekData } from "../services/studyTime";
+import { loadWeekData, loadTotalTime } from "../services/studyTime";
 import { useAuth } from "../contexts/AuthContext";
 
 export function Statistics() {
   const { user } = useAuth();
   const [data, setData] = useState([]);
-
+  const [totalSeconds, setTotalSeconds] = useState(0);
   useEffect(() => {
     if (user) {
       loadWeekData(user.uid).then(setData);
+      loadTotalTime(user.uid).then(setTotalSeconds);
     }
   }, [user]);
+
+  const formatTotal = (seconds) => {
+    const days = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    const time = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    if (days > 0) return `${days} dia${days > 1 ? "s" : ""} e ${time} de Foco`;
+    return `${time} de Foco`;
+  };
 
   const today = new Date()
     .toLocaleDateString("pt-BR", { weekday: "short" })
@@ -64,7 +75,7 @@ export function Statistics() {
               {data.map((entry) => (
                 <Cell
                   key={entry.day}
-                  fill={entry.day === today ? "#ef4444" : "#2a2a2a"} // ← hoje em vermelho
+                  fill={entry.day === today ? "#ef4444" : "#2a2a2a"} // hoje em vermelho
                 />
               ))}
             </Bar>
@@ -81,6 +92,14 @@ export function Statistics() {
           {Math.floor(data.reduce((acc, d) => acc + d.minutes, 0) / 60)}h{" "}
           {data.reduce((acc, d) => acc + d.minutes, 0) % 60}m
         </p>
+        <div className="border-t border-[#2a2a2a] pt-4">
+          <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">
+            Total geral
+          </p>
+          <p className="text-white text-2xl font-bold">
+            {formatTotal(totalSeconds)}
+          </p>
+        </div>
       </div>
     </div>
   );
