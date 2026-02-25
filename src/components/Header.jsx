@@ -1,11 +1,11 @@
 import { useAuth } from "../contexts/AuthContext";
 
-export function Header({ activePage, onPageChange }) {
+export function Header({ activePage, onPageChange, onSignIn }) {
+  // ← onSignIn adicionado
   const { user, logout } = useAuth();
   const pages = ["Home", "Statistics", "Settings"];
 
   return (
-    // ← flex-col no mobile, flex-row no desktop
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       {/* PomoFlow */}
       <span className="text-red-500 font-bold text-xl tracking-widest uppercase">
@@ -27,26 +27,35 @@ export function Header({ activePage, onPageChange }) {
         ))}
       </div>
 
-      {/* Avatar + Nome + Logout */}
-      <div className="flex items-center gap-3">
-        {user?.photoURL && (
-          <img
-            src={user.photoURL}
-            alt="avatar"
-            referrerPolicy="no-referrer"
-            className="w-8 h-8 rounded-full object-cover"
-          />
-        )}
-        <span className="text-white text-sm">
-          {user?.displayName ?? user?.email}
-        </span>
+      {/* Avatar + Nome + Logout / Sign In */}
+      {user ? (
+        <div className="flex items-center gap-3">
+          {user?.photoURL && (
+            <img
+              src={user.photoURL}
+              alt="avatar"
+              referrerPolicy="no-referrer"
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          )}
+          <span className="text-white text-sm">
+            {user?.displayName ?? user?.email}
+          </span>
+          <button
+            onClick={logout}
+            className="text-xs text-gray-500 hover:text-red-400 transition"
+          >
+            Sair
+          </button>
+        </div>
+      ) : (
         <button
-          onClick={logout}
-          className="text-xs text-gray-500 hover:text-red-400 transition"
+          onClick={onSignIn}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
         >
-          Sair
+          Sign In
         </button>
-      </div>
+      )}
     </div>
   );
 }

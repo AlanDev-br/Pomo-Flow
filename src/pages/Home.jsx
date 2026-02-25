@@ -12,7 +12,7 @@ import {
   loadDefaultSettings,
 } from "../services/studyTime";
 
-export function Home() {
+export function Home({ onSignIn }) {
   const { user } = useAuth();
 
   // Controle de navegação entre páginas do Header
@@ -117,6 +117,7 @@ export function Home() {
               if (page === "Settings") setShowSettings(true);
               else setActivePage(page);
             }}
+            onSignIn={onSignIn}
           />
 
           {/* Grid principal — coluna no mobile, 2 colunas no desktop */}

@@ -6,7 +6,7 @@ import {
 } from "firebase/auth";
 import { auth, googleProvider } from "../services/firebase";
 
-export function Login() {
+export function Login({ onBack }) {
   const [isCreating, setIsCreating] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,6 +36,13 @@ export function Login() {
   return (
     <div className="min-h-screen bg-[#0e0e0e] flex items-center justify-center">
       <div className="bg-[#1a1a1a] rounded-2xl p-8 w-full max-w-sm flex flex-col gap-4 shadow-2xl">
+        <button
+          onClick={onBack}
+          className="text-gray-500 text-xs hover:text-gray-300 transition text-left"
+        >
+          ← Back
+        </button>
+
         {/* ← Nome e slogan do app */}
         <div className="text-center mb-2">
           <h1 className="text-red-500 text-3xl font-bold tracking-widest">
