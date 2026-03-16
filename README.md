@@ -19,6 +19,7 @@ https://pomo-flow.vercel.app/
 - Tailwind
 - Firebase
 - Javascript
+- NodeJs
 
 ## 📦 Como rodar localmente
 
