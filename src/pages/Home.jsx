@@ -10,34 +10,37 @@ import {
   loadTodayTime,
   saveTodayTime,
   loadDefaultSettings,
+  resetTodayTime,
+  deduceTodayTime,
 } from "../services/studyTime";
 
 export function Home({ onSignIn }) {
   const { user } = useAuth();
 
-  // Controle de navegação entre páginas do Header
+  // navegação
   const [activePage, setActivePage] = useState("Home");
+  const [showSettings, setShowSettings] = useState(false);
 
-  // Controle da aba ativa no Timer
+  // timer
   const [activeTab, setActiveTab] = useState("pomodoro");
-
-  // Ref para o debounce do salvamento no Firestore
-  const saveTimer = useRef(null);
-
-  // Tempos configuráveis de cada aba em minutos
   const [times, setTimes] = useState({
     pomodoro: 25,
     shortBreak: 5,
     longBreak: 15,
   });
 
-  // Controle de visibilidade do modal de Settings
-  const [showSettings, setShowSettings] = useState(false);
-
-  // Segundos acumulados de foco no dia atual
+  // progresso do dia
   const [studySeconds, setStudySeconds] = useState(0);
+  const saveTimer = useRef(null);
 
-  // Carrega o progresso do dia e as configurações padrão ao entrar
+  // deduce
+  const [showDeduce, setShowDeduce] = useState(false);
+  const [deduceMinutes, setDeduceMinutes] = useState("");
+
+  // confirmação de reset
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  // carrega progresso e settings ao logar
   useEffect(() => {
     if (user) {
       loadTodayTime(user.uid)
@@ -52,12 +55,7 @@ export function Home({ onSignIn }) {
     }
   }, [user]);
 
-  // Incrementa o contador a cada segundo que o Pomodoro está rodando
-  const handlePomodoroTick = () => {
-    setStudySeconds((prev) => prev + 1);
-  };
-
-  // Salva o progresso no Firestore com debounce de 3 segundos
+  // salva com debounce pra não bater toda hora no Firestore
   useEffect(() => {
     if (!user || studySeconds === 0) return;
     clearTimeout(saveTimer.current);
@@ -68,7 +66,25 @@ export function Home({ onSignIn }) {
     }, 3000);
   }, [studySeconds]);
 
-  // Formata segundos em HH:MM:SS ou MM:SS
+  const handlePomodoroTick = () => {
+    setStudySeconds((prev) => prev + 1);
+  };
+
+  const handleReset = async () => {
+    const seconds = await resetTodayTime(user.uid);
+    setStudySeconds(seconds);
+    setShowResetConfirm(false);
+  };
+
+  const handleDeduce = async () => {
+    if (!user || !deduceMinutes) return;
+    const seconds = await deduceTodayTime(user.uid, Number(deduceMinutes));
+    setStudySeconds(seconds);
+    setDeduceMinutes("");
+    setShowDeduce(false);
+  };
+
+  // HH:MM:SS ou MM:SS dependendo do tempo
   const formatTime = (seconds) => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -78,7 +94,6 @@ export function Home({ onSignIn }) {
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
-  // Retorna o nome do dia da semana atual em inglês
   const getDayName = () => {
     const days = [
       "Sunday",
@@ -94,7 +109,6 @@ export function Home({ onSignIn }) {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#0f0f0f] via-[#141414] to-[#0d0d0d] overflow-hidden">
-      {/* Imagem de fundo */}
       <div
         className="absolute inset-0"
         style={{
@@ -103,14 +117,10 @@ export function Home({ onSignIn }) {
           backgroundPosition: "center",
         }}
       />
-
-      {/* Overlay escuro sobre o fundo */}
       <div className="absolute inset-0 bg-black/50" />
 
-      {/* Conteúdo principal */}
       <div className="relative z-10 flex items-center justify-center p-3 md:p-6">
         <div className="w-full max-w-7xl bg-[#1a1a1a] rounded-3xl shadow-2xl p-4 md:p-8">
-          {/* Header com navegação e perfil do usuário */}
           <Header
             activePage={activePage}
             onPageChange={(page) => {
@@ -120,11 +130,9 @@ export function Home({ onSignIn }) {
             onSignIn={onSignIn}
           />
 
-          {/* Grid principal — coluna no mobile, 2 colunas no desktop */}
           <div className="flex flex-col gap-8 mt-8 md:grid md:grid-cols-2">
-            {/* Left Panel — Timer e Statistics se alternam no mesmo espaço */}
+            {/* left panel - timer fica rodando mesmo quando statistics aparece */}
             <div className="relative">
-              {/* Timer fica invisível quando Statistics está ativo mas continua rodando */}
               <div className={activePage === "Statistics" ? "invisible" : ""}>
                 <Timer
                   activeTab={activeTab}
@@ -133,8 +141,6 @@ export function Home({ onSignIn }) {
                   onPomodoroTick={handlePomodoroTick}
                 />
               </div>
-
-              {/* Statistics sobrepõe o Timer quando ativo */}
               {activePage === "Statistics" && (
                 <div className="absolute inset-0">
                   <Statistics />
@@ -142,31 +148,70 @@ export function Home({ onSignIn }) {
               )}
             </div>
 
-            {/* Right Panel — Progresso do dia e Player de música */}
+            {/* right panel */}
             <div className="bg-[#141414] rounded-2xl p-6 text-white flex flex-col gap-4">
-              {/* Título com dia da semana dinâmico */}
               <p className="text-gray-500 text-xs uppercase tracking-widest">
                 Your Progress this {getDayName()}
               </p>
 
-              {/* Tempo acumulado de foco formatado */}
               <p className="text-3xl font-bold text-white tracking-widest">
                 {formatTime(studySeconds)}
               </p>
 
-              {/* Total em minutos */}
               <p className="text-gray-600 text-xs">
                 {Math.floor(studySeconds / 60)} minutes of focus today
               </p>
 
-              {/* Player de música */}
+              {/* reset e deduce só aparecem pra quem está logado */}
+              {user && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowResetConfirm(true)}
+                    className="text-xs text-gray-500 hover:text-red-400 transition"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={() => setShowDeduce(!showDeduce)}
+                    className="text-xs text-gray-500 hover:text-red-400 transition"
+                  >
+                    Deduce
+                  </button>
+                </div>
+              )}
+
+              {showDeduce && user && (
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="number"
+                    min={1}
+                    value={deduceMinutes}
+                    onChange={(e) => setDeduceMinutes(e.target.value)}
+                    placeholder="minutes"
+                    className="bg-[#2a2a2a] text-white text-sm rounded-lg px-3 py-1 w-24 focus:outline-none focus:ring-1 focus:ring-red-500"
+                  />
+                  <button
+                    onClick={handleDeduce}
+                    className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition"
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    onClick={() => setShowDeduce(false)}
+                    className="text-xs text-gray-500 hover:text-gray-300 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
               <div className="border-t border-[#2a2a2a] pt-4">
                 <Player />
               </div>
             </div>
           </div>
 
-          {/* Modal de Settings */}
+          {/* modal de settings */}
           {showSettings && (
             <Settings
               times={times}
@@ -176,6 +221,40 @@ export function Home({ onSignIn }) {
               }}
               onClose={() => setShowSettings(false)}
             />
+          )}
+
+          {/* confirmação antes de resetar o progresso */}
+          {showResetConfirm && (
+            <div
+              className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
+              onClick={() => setShowResetConfirm(false)}
+            >
+              <div
+                className="bg-[#1a1a1a] rounded-2xl p-8 w-full max-w-sm flex flex-col gap-6 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="text-white text-base font-semibold">
+                  Are you sure you want to reset today's progress?
+                </p>
+                <p className="text-gray-500 text-sm">
+                  This action cannot be undone.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowResetConfirm(false)}
+                    className="flex-1 py-2 rounded-xl text-gray-400 bg-[#2a2a2a] hover:bg-[#333] transition text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleReset}
+                    className="flex-1 py-2 rounded-xl text-white bg-red-500 hover:bg-red-600 transition text-sm font-semibold"
+                  >
+                    Yes, reset
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>
