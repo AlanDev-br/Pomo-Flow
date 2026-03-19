@@ -146,10 +146,10 @@ export function Player() {
 
       {/* Campo de motivação do dia */}
       <div className="border-t border-[#2a2a2a] pt-4 flex flex-col gap-2">
-        <p className="text-gray-400 text-sm">O que te motiva hoje?</p>
+        <p className="text-gray-400 text-sm">What's your motivation?</p>
         <textarea
           rows={3}
-          placeholder="Escreva aqui..."
+          placeholder="Write here..."
           className="bg-[#2a2a2a] text-white text-sm rounded-xl px-4 py-3 resize-none focus:outline-none focus:ring-1 focus:ring-red-500 placeholder-gray-600"
         />
       </div>

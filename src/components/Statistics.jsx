@@ -28,8 +28,9 @@ export function Statistics() {
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
     const time = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-    if (days > 0) return `${days} dia${days > 1 ? "s" : ""} e ${time} de Foco`;
-    return `${time} de Foco`;
+    if (days > 0)
+      return `${days} day${days > 1 ? "s" : ""} and ${time} of Focus`;
+    return `${time} of Focus`;
   };
 
   const today = new Date()
@@ -71,7 +72,7 @@ export function Statistics() {
               }}
               labelStyle={{ color: "#FFF" }}
               itemStyle={{ color: "#FFF" }}
-              formatter={(value) => [`${value} min`, "Foco"]}
+              formatter={(value) => [`${value} min`, "Focus"]}
             />
             <Bar dataKey="minutes" radius={[6, 6, 0, 0]}>
               {data.map((entry) => (
