@@ -69,13 +69,15 @@ export function Statistics() {
                 borderRadius: "8px",
                 color: "#fff",
               }}
+              labelStyle={{ color: "#FFF" }}
+              itemStyle={{ color: "#FFF" }}
               formatter={(value) => [`${value} min`, "Foco"]}
             />
             <Bar dataKey="minutes" radius={[6, 6, 0, 0]}>
               {data.map((entry) => (
                 <Cell
                   key={entry.day}
-                  fill={entry.day === today ? "#ef4444" : "#2a2a2a"} // hoje em vermelho
+                  fill={entry.day === today ? "#ef4444" : "#7f1d1d"} // hoje em vermelho
                 />
               ))}
             </Bar>
@@ -86,7 +88,7 @@ export function Statistics() {
       {/* Total da semana */}
       <div className="border-t border-[#2a2a2a] pt-4">
         <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">
-          Total da semana
+          Total Of this Week
         </p>
         <p className="text-white text-2xl font-bold">
           {Math.floor(data.reduce((acc, d) => acc + d.minutes, 0) / 60)}h{" "}
@@ -94,7 +96,7 @@ export function Statistics() {
         </p>
         <div className="border-t border-[#2a2a2a] pt-4">
           <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">
-            Total geral
+            Total
           </p>
           <p className="text-white text-2xl font-bold">
             {formatTotal(totalSeconds)}
