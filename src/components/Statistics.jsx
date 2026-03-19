@@ -46,7 +46,7 @@ export function Statistics() {
         <h2 className="text-white text-xl font-bold">This Week</h2>
       </div>
 
-      <div className="flex-1 w-full min-h-[200px]">
+      <div className="flex-1 w-full min-h-[200px] -ml-6">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} barSize={28}>
             <XAxis
