@@ -33,7 +33,7 @@ export function Statistics() {
   };
 
   const today = new Date()
-    .toLocaleDateString("pt-BR", { weekday: "short" })
+    .toLocaleDateString("en-US", { weekday: "short" })
     .replace(".", "")
     .replace(/^\w/, (c) => c.toUpperCase());
 
