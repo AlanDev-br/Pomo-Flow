@@ -43,7 +43,7 @@ export function Statistics() {
         <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">
           Statistics
         </p>
-        <h2 className="text-white text-xl font-bold">Esta semana</h2>
+        <h2 className="text-white text-xl font-bold">This Week</h2>
       </div>
 
       <div className="flex-1 w-full min-h-[200px]">
@@ -51,12 +51,12 @@ export function Statistics() {
           <BarChart data={data} barSize={28}>
             <XAxis
               dataKey="day"
-              tick={{ fill: "#555", fontSize: 12 }}
+              tick={{ fill: "#cccccc", fontSize: 12 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fill: "#555", fontSize: 12 }}
+              tick={{ fill: "#eaeaea", fontSize: 12 }}
               axisLine={false}
               tickLine={false}
               unit="m"
